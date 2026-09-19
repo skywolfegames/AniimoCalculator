@@ -1,240 +1,644 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aniimo — Consulta de Interações Elementais</title>
-<style>
-  :root {
-    --bg:#edf0fb; --panel:#fbfbfe; --ink:#252b43; --muted:#747b98;
-    --line:#e1e4f0; --purple:#d95bfa; --purple-bg:#fff4ff;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;padding:24px;background:linear-gradient(135deg,#e8ecf9,#f5f6fc);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink)}
-  .wrap{max-width:1150px;margin:auto}
-  .panel{background:rgba(255,255,255,.95);border:1px solid #fff;border-radius:22px;box-shadow:0 12px 35px #343b6414;padding:28px}
-  .top{margin-bottom:20px}
-  h1{font-size:clamp(20px,3vw,26px);margin:0 0 6px;font-weight:800;letter-spacing:-.6px}
-  .sub{font-size:13px;color:var(--muted)}
-
-  .config-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;background:#f4f6fc;padding:12px 16px;border-radius:12px}
-  .config-bar label{font-size:13px;font-weight:800;color:var(--ink)}
-  .config-bar select{width:80px;padding:8px;border-radius:8px;border:1px solid #dfe1ed;font-weight:700;background:#fff}
-
-  .dual-layout{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aniimo — Tactical Elemental Matrix & Team Simulator</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   
-  .frame-box{background:#fff;border:2px solid var(--ink);border-radius:18px;padding:20px;box-shadow:0 6px 20px rgba(0,0,0,0.04)}
-  .frame-box h2{font-size:15px;margin:0 0 16px;font-weight:800;border-bottom:2px solid var(--line);padding-bottom:8px}
-
-  .slot-row{margin-bottom:12px}
-  .slot-row label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px;text-transform:uppercase}
-  select.team-select{width:100%;padding:11px 12px;border:1px solid #dfe1ed;border-radius:10px;background:#f9f9fd;color:var(--ink);font-size:13px;font-weight:700;outline:none}
-  select.team-select:focus{border-color:#d96df2;box-shadow:0 0 0 3px #f8e6ff}
-
-  .result-slot{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0f2f8;min-height:56px}
-  .result-slot:last-child{border-bottom:none}
-  .cross-mark{font-size:18px;font-weight:900;color:#e63946;width:24px;text-align:center}
-  .result-content{font-size:13px;font-weight:700;color:var(--ink);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  
-  .badge{font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fcfdff}
-  .badge.counter{background:var(--purple-bg);color:#a52ab7;border-color:#efc2fa}
-
-  .element-icon{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;color:white;font-size:11px;font-weight:900;border:1.5px solid rgba(0,0,0,0.2)}
-  .ice{background:#38b6ff}
-  .water{background:#0077b6}
-  .electric{background:#ffb703}
-  .fire{background:#d90429}
-  .nature{background:#38b000}
-  .earth{background:#b5838d}
-  .wind{background:#4ea8de}
-  .dark{background:#7209b7}
-  .light{background:#ffb703}
-
-  .foot{font-size:11px;color:#9298af;margin-top:20px;line-height:1.5;text-align:center}
-  @media(max-width:768px){.dual-layout{grid-template-columns:1fr}}
-  @media(min-width:769px) and (max-width:1024px){.dual-layout{grid-template-columns:1fr 1fr}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <main class="panel">
-    <div class="top">
-      <h1>Aniimo — Consulta de Interações Elementais</h1>
-      <div class="sub">Selecione um elemento para ver em quais outros ele tem vantagem.</div>
-    </div>
-
-    <div class="config-bar">
-      <label for="opponent-count">Quantidade de Elementos:</label>
-      <select id="opponent-count">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3" selected>3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-      </select>
-    </div>
-
-    <div class="dual-layout">
-      <div class="frame-box">
-        <h2>Selecione os Elementos</h2>
-        <div id="selectors-container"></div>
-      </div>
-
-      <div class="frame-box">
-        <h2>Se quero defender</h2>
-        <div id="results-container"></div>
-      </div>
-
-      <div class="frame-box">
-        <h2>Se quero atacar</h2>
-        <div id="counters-container"></div>
-      </div>
-    </div>
-
-    <div class="foot">Sincronizado rigorosamente com a matriz oficial do jogo.</div>
-  </main>
-</div>
-
-<script>
-// Ordem: 0:Gelo, 1:Água, 2:Raio, 3:Fogo, 4:Planta, 5:Terra, 6:Vento, 7:Dark, 8:Luz
-const elements = [
-  {id:'ice', name:'Gelo', icon:'❄', cls:'ice'},
-  {id:'water', name:'Água', icon:'💧', cls:'water'},
-  {id:'electric', name:'Raio', icon:'⚡', cls:'electric'},
-  {id:'fire', name:'Fogo', icon:'🔥', cls:'fire'},
-  {id:'nature', name:'Planta', icon:'🌿', cls:'nature'},
-  {id:'earth', name:'Terra', icon:'⛰', cls:'earth'},
-  {id:'wind', name:'Vento', icon:'🌀', cls:'wind'},
-  {id:'dark', name:'Dark', icon:'👁', cls:'dark'},
-  {id:'light', name:'Luz', icon:'☀️', cls:'light'}
-];
-
-// Matriz atualizada:
-// Linha = Atacante, Coluna = Defensor. 1 = Atacante tem vantagem.
-const interactionMatrix = [
-  // Gelo, Água, Raio, Fogo, Planta, Terra, Vento, Dark, Luz
-  [ 0,    1,    1,    0,    0,     0,     0,     0,     0 ], // Gelo (bate em Água e Raio)
-  [ 0,    0,    0,    1,    0,     1,     0,     0,     0 ], // Água (bate em Fogo e Terra)
-  [ 0,    1,    0,    0,    0,     0,     1,     0,     0 ], // Raio (bate em Água e Vento)
-  [ 1,    0,    0,    0,    1,     0,     0,     0,     0 ], // Fogo (bate em Gelo e Planta)
-  [ 0,    1,    0,    0,    0,     1,     0,     0,     0 ], // Planta (bate em Água e Terra)
-  [ 0,    0,    0,    1,    0,     0,     1,     0,     0 ], // Terra (bate em Fogo e Vento)
-  [ 0,    0,    0,    0,    1,     0,     0,     1,     0 ], // Vento (bate em Planta e Dark)
-  [ 0,    0,    1,    0,    1,     0,     0,     0,     1 ], // Dark (bate em Raio, Planta e Luz)
-  [ 0,    0,    0,    0,    0,     0,     1,     1,     0 ]  // Luz (bate em Vento e Dark)
-];
-
-const countSelect = document.getElementById('opponent-count');
-const selectorsContainer = document.getElementById('selectors-container');
-const resultsContainer = document.getElementById('results-container');
-const countersContainer = document.getElementById('counters-container');
-
-const icon = e => `<span class="element-icon ${e.cls}">${e.icon}</span>`;
-
-function initUI() {
-  const count = parseInt(countSelect.value);
-  let selectorsHtml = '';
-
-  for (let i = 0; i < count; i++) {
-    selectorsHtml += `
-      <div class="slot-row">
-        <label>Slot 0${i+1}</label>
-        <select class="team-select" data-index="${i}">
-          <option value="none">— Nenhum / Vazio —</option>
-    `;
-    elements.forEach((e, idx) => {
-      const selected = (i === 0 && idx === 1) || (i === 1 && idx === 1) || (i === 2 && idx === 1) ? 'selected' : '';
-      selectorsHtml += `<option value="${idx}" ${selected}>${e.name}</option>`;
-    });
-    selectorsHtml += `</select></div>`;
-  }
-
-  selectorsContainer.innerHTML = selectorsHtml;
-  document.querySelectorAll('.team-select').forEach(sel => {
-    sel.addEventListener('change', updateResults);
-  });
-
-  updateResults();
-}
-
-function updateResults() {
-  const selects = document.querySelectorAll('.team-select');
-  let resultsHtml = '';
-  let countersHtml = '';
-
-  selects.forEach((sel) => {
-    const val = sel.value;
-    
-    // Frame de vantagens
-    resultsHtml += `
-      <div class="result-slot">
-        <div class="cross-mark">→</div>
-        <div class="result-content">
-    `;
-
-    // Frame de counters
-    countersHtml += `
-      <div class="result-slot">
-        <div class="cross-mark">⚠️</div>
-        <div class="result-content">
-    `;
-
-    if (val === 'none') {
-      resultsHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Slot vazio</span>`;
-      countersHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Slot vazio</span>`;
-    } else {
-      const attackerIdx = parseInt(val);
-      const attackerElement = elements[attackerIdx];
-
-      // Calcular vantagens do elemento selecionado
-      let advantages = [];
-      const attackerRow = interactionMatrix[attackerIdx];
-      attackerRow.forEach((value, defenderIdx) => {
-        if (value === 1) {
-          advantages.push(elements[defenderIdx]);
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            aniimo: {
+              darkbg: '#090b10',
+              card: '#121622',
+              cardhover: '#192030',
+              border: '#222c42',
+              glow: '#3b82f6',
+            }
+          }
         }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #090b10;
+      color: #f3f4f6;
+      overflow-x: hidden;
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #090b10; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+    /* Element Neon Glows & Colors */
+    .ele-ice { background: linear-gradient(135deg, #38b6ff, #0077b6); color: #fff; box-shadow: 0 0 15px rgba(56, 182, 255, 0.4); }
+    .ele-water { background: linear-gradient(135deg, #0077b6, #03045e); color: #fff; box-shadow: 0 0 15px rgba(0, 119, 182, 0.4); }
+    .ele-electric { background: linear-gradient(135deg, #ffb703, #fb8500); color: #000; box-shadow: 0 0 15px rgba(255, 183, 3, 0.4); }
+    .ele-fire { background: linear-gradient(135deg, #d90429, #ef233c); color: #fff; box-shadow: 0 0 15px rgba(217, 4, 41, 0.4); }
+    .ele-nature { background: linear-gradient(135deg, #38b000, #007200); color: #fff; box-shadow: 0 0 15px rgba(56, 176, 0, 0.4); }
+    .ele-earth { background: linear-gradient(135deg, #b5838d, #6d597a); color: #fff; box-shadow: 0 0 15px rgba(181, 131, 141, 0.4); }
+    .ele-wind { background: linear-gradient(135deg, #4ea8de, #48cae4); color: #000; box-shadow: 0 0 15px rgba(78, 168, 222, 0.4); }
+    .ele-dark { background: linear-gradient(135deg, #7209b7, #3a0ca3); color: #fff; box-shadow: 0 0 15px rgba(114, 9, 183, 0.4); }
+    .ele-light { background: linear-gradient(135deg, #ffd166, #fca311); color: #000; box-shadow: 0 0 15px rgba(255, 209, 102, 0.4); }
+
+    .ele-badge-ice { border-color: #38b6ff; color: #38b6ff; background: rgba(56, 182, 255, 0.1); }
+    .ele-badge-water { border-color: #0077b6; color: #38b6ff; background: rgba(0, 119, 182, 0.1); }
+    .ele-badge-electric { border-color: #ffb703; color: #ffb703; background: rgba(255, 183, 3, 0.1); }
+    .ele-badge-fire { border-color: #d90429; color: #ef233c; background: rgba(217, 4, 41, 0.1); }
+    .ele-badge-nature { border-color: #38b000; color: #38b000; background: rgba(56, 176, 0, 0.1); }
+    .ele-badge-earth { border-color: #b5838d; color: #d4a373; background: rgba(181, 131, 141, 0.1); }
+    .ele-badge-wind { border-color: #4ea8de; color: #4ea8de; background: rgba(78, 168, 222, 0.1); }
+    .ele-badge-dark { border-color: #7209b7; color: #b5179e; background: rgba(114, 9, 183, 0.1); }
+    .ele-badge-light { border-color: #ffd166; color: #ffd166; background: rgba(255, 209, 102, 0.1); }
+
+    .glass-panel {
+      background: rgba(18, 22, 34, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .pulse-glow {
+      animation: pulseGlow 3s infinite alternate;
+    }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+      100% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5); }
+    }
+
+    .matrix-cell {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .matrix-cell:hover {
+      transform: scale(1.15);
+      z-index: 10;
+      box-shadow: 0 0 15px rgba(255,255,255,0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16">
+
+  <header class="border-b border-gray-800 bg-aniimo-darkbg/90 sticky top-0 z-50 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-600 grid place-items-center text-white text-2xl font-black shadow-lg shadow-blue-500/30">
+          <i class="fa-solid fa-bolt-lightning"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-black tracking-tight bg-gradient-to-r from-white via-gray-200 to-blue-400 bg-clip-text text-transparent">ANIIMO</h1>
+            <span class="text-xs uppercase font-extrabold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">PRO v2.5</span>
+          </div>
+          <p class="text-xs text-gray-400 font-medium">Tactical Elemental Matrix & Team Simulator</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center bg-aniimo-card p-1.5 rounded-2xl border border-gray-800 shadow-inner">
+        <button onclick="switchTab('team')" id="btn-tab-team" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30">
+          <i class="fa-solid fa-users-rectangle"></i> Sinergia & Time
+        </button>
+        <button onclick="switchTab('matrix')" id="btn-tab-matrix" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 text-gray-400 hover:text-white">
+          <i class="fa-solid fa-table-cells"></i> Matriz 9x9
+        </button>
+        <button onclick="switchTab('battle')" id="btn-tab-battle" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 text-gray-400 hover:text-white">
+          <i class="fa-solid fa-crosshairs"></i> Simulador 1v1
+        </button>
+      </nav>
+
+      <!-- Audio & Quick Actions -->
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSound()" id="sound-toggle" class="w-10 h-10 rounded-xl bg-aniimo-card border border-gray-800 text-gray-400 hover:text-white grid place-items-center transition" title="Ativar/Desativar Sons">
+          <i class="fa-solid fa-volume-high text-sm"></i>
+        </button>
+        <button onclick="openLegendModal()" class="w-10 h-10 rounded-xl bg-aniimo-card border border-gray-800 text-gray-400 hover:text-white grid place-items-center transition" title="Guia Rápido">
+          <i class="fa-solid fa-circle-question text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 pt-8">
+
+    <!-- TAB 1: TEAM & SYNERGY ANALYSIS -->
+    <section id="tab-team" class="space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left Column: Squad Builder -->
+        <div class="lg:col-span-1 glass-panel rounded-3xl p-6 relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-extrabold flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-blue-400"></i> Montagem de Esquadrão
+              </h2>
+              <button onclick="resetTeam()" class="text-xs text-gray-400 hover:text-red-400 transition flex items-center gap-1 font-semibold">
+                <i class="fa-solid fa-rotate-right"></i> Limpar
+              </button>
+            </div>
+            <p class="text-xs text-gray-400 mb-6">Monte seu time com até 6 elementos para calcular automaticamente vantagens, pontos cegos defensivos e sinergia.</p>
+
+            <!-- Squad Slots Container -->
+            <div id="squad-slots" class="space-y-3 mb-6">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-gray-800/80 text-xs text-gray-400 flex items-center justify-between">
+            <span>Elementos Ativos: <strong id="active-count" class="text-white">0</strong>/6</span>
+            <span class="text-blue-400 font-bold" id="squad-power-score">Sinergia: Ótima</span>
+          </div>
+        </div>
+
+        <!-- Right/Center Column: Tactical Analytics & Coverage -->
+        <div class="lg:col-span-2 space-y-6">
+          
+          <!-- Tactical Advice Box -->
+          <div class="glass-panel rounded-3xl p-6 border-l-4 border-l-blue-500 relative">
+            <h3 class="text-sm font-extrabold text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+              <i class="fa-solid fa-brain"></i> Relatório Tático da IA & Conselhos
+            </h3>
+            <div id="ai-tactical-advice" class="text-sm text-gray-300 leading-relaxed font-medium">
+              Selecione ao menos um elemento no seu esquadrão para receber uma análise tática completa.
+            </div>
+          </div>
+
+          <!-- Offensive Coverage Grid -->
+          <div class="glass-panel rounded-3xl p-6">
+            <h3 class="text-sm font-extrabold uppercase tracking-wider text-gray-300 mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-bullseye text-emerald-400"></i> Cobertura Ofensiva (O que seu time consegue derrotar)
+            </h3>
+            <div id="offensive-coverage-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Defensive Weaknesses / Vulnerabilities -->
+          <div class="glass-panel rounded-3xl p-6">
+            <h3 class="text-sm font-extrabold uppercase tracking-wider text-gray-300 mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Pontos Cegos & Vulnerabilidades do Time
+            </h3>
+            <div id="defensive-weaknesses-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: INTERACTIVE 9x9 MATRIX -->
+    <section id="tab-matrix" class="hidden space-y-6">
+      <div class="glass-panel rounded-3xl p-6">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-lg font-black text-white flex items-center gap-2">
+              <i class="fa-solid fa-table text-purple-400"></i> Matriz Elemental Completa (9x9)
+            </h2>
+            <p class="text-xs text-gray-400">Linha = Atacante | Coluna = Defensor. Célula com <strong class="text-emerald-400">1</strong> indica vantagem direta do elemento.</p>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-semibold">
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Vantagem (1)</div>
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-gray-700 inline-block"></span> Neutro (0)</div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto pb-4">
+          <div id="matrix-container" class="min-w-[700px]">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: 1v1 BATTLE SIMULATOR -->
+    <section id="tab-battle" class="hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Attacker Selector -->
+        <div class="glass-panel rounded-3xl p-6 flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-extrabold text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+              <i class="fa-solid fa-sword"></i> Atacante
+            </h3>
+            <p class="text-xs text-gray-400 mb-4">Escolha o elemento que vai desferir o ataque.</p>
+            <div id="battle-attacker-picker" class="grid grid-cols-3 gap-3 mb-4">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+          <div id="attacker-selected-preview" class="p-4 rounded-2xl bg-aniimo-card border border-gray-800 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl grid place-items-center text-lg font-bold" id="battle-att-icon">❄</div>
+            <div>
+              <div class="text-xs text-gray-400 font-semibold">Selecionado</div>
+              <div class="text-sm font-bold text-white" id="battle-att-name">Gelo</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Defender Selector -->
+        <div class="glass-panel rounded-3xl p-6 flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-extrabold text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+              <i class="fa-solid shield"></i> Defensor / Alvo
+            </h3>
+            <p class="text-xs text-gray-400 mb-4">Escolha o elemento que vai receber o impacto.</p>
+            <div id="battle-defender-picker" class="grid grid-cols-3 gap-3 mb-4">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+          <div id="defender-selected-preview" class="p-4 rounded-2xl bg-aniimo-card border border-gray-800 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl grid place-items-center text-lg font-bold" id="battle-def-icon">💧</div>
+            <div>
+              <div class="text-xs text-gray-400 font-semibold">Selecionado</div>
+              <div class="text-sm font-bold text-white" id="battle-def-name">Água</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Battle Result Arena -->
+      <div class="glass-panel rounded-3xl p-8 text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-rose-600/15 pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-4">
+          <span class="text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 inline-block">Resultado da Simulação</span>
+          <div id="battle-result-title" class="text-3xl font-black text-white">Super Efetivo!</div>
+          <p id="battle-result-desc" class="text-sm text-gray-300 leading-relaxed font-medium">O elemento Atacante possui forte vantagem elemental sobre o Defensor.</p>
+          <div class="pt-4 flex justify-center gap-4">
+            <div class="px-6 py-3 rounded-2xl bg-aniimo-card border border-gray-800 text-xs font-bold text-gray-300">
+              Multiplicador: <span id="battle-mult-val" class="text-emerald-400 font-mono text-sm">2.0x</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- QUICK LEGEND / INFO MODAL -->
+  <div id="legend-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden place-items-center p-4">
+    <div class="glass-panel rounded-3xl max-w-lg w-full p-6 relative space-y-4">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+        <h3 class="text-base font-black text-white flex items-center gap-2">
+          <i class="fa-solid fa-circle-info text-blue-400"></i> Guia e Regras Elementais
+        </h3>
+        <button onclick="closeLegendModal()" class="w-8 h-8 rounded-xl bg-aniimo-card border border-gray-800 text-gray-400 hover:text-white grid place-items-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="text-xs text-gray-300 space-y-3 leading-relaxed">
+        <p>O <strong>Aniimo Pro</strong> é sincronizado rigorosamente com a matriz oficial de interações elementais do jogo.</p>
+        <ul class="list-disc pl-4 space-y-1 text-gray-400">
+          <li><strong>Sinergia de Time:</strong> Permite montar até 6 elementos para verificar quais tipos o seu time domina e quais ameaças podem te surpreender.</li>
+          <li><strong>Matriz 9x9:</strong> Permite visualizar cruzamentos inteiros de vantagem entre todos os 9 elementos disponíveis.</li>
+          <li><strong>Simulador 1v1:</strong> Calcula o resultado de um combate direto entre duas energias elementais específicas.</li>
+        </ul>
+      </div>
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeLegendModal()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-lg shadow-blue-600/30">Entendi</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Elements Definition
+    const elements = [
+      { id: 'ice', name: 'Gelo', icon: '❄', cls: 'ele-ice', badge: 'ele-badge-ice' },
+      { id: 'water', name: 'Água', icon: '💧', cls: 'ele-water', badge: 'ele-badge-water' },
+      { id: 'electric', name: 'Raio', icon: '⚡', cls: 'ele-electric', badge: 'ele-badge-electric' },
+      { id: 'fire', name: 'Fogo', icon: '🔥', cls: 'ele-fire', badge: 'ele-badge-fire' },
+      { id: 'nature', name: 'Planta', icon: '🌿', cls: 'ele-nature', badge: 'ele-badge-nature' },
+      { id: 'earth', name: 'Terra', icon: '⛰', cls: 'ele-earth', badge: 'ele-badge-earth' },
+      { id: 'wind', name: 'Vento', icon: '🌀', cls: 'ele-wind', badge: 'ele-badge-wind' },
+      { id: 'dark', name: 'Dark', icon: '👁', cls: 'ele-dark', badge: 'ele-badge-dark' },
+      { id: 'light', name: 'Luz', icon: '☀️', cls: 'ele-light', badge: 'ele-badge-light' }
+    ];
+
+    // Official Interaction Matrix (Attacker vs Defender)
+    const interactionMatrix = [
+      [ 0, 1, 0, 0, 0, 0, 0, 0, 1 ], // Gelo (bate em Água e Luz)
+      [ 0, 0, 0, 1, 0, 1, 0, 0, 0 ], // Água (bate em Fogo e Terra)
+      [ 0, 1, 0, 0, 0, 0, 1, 0, 0 ], // Raio (bate em Água e Vento)
+      [ 1, 0, 0, 0, 1, 0, 0, 0, 0 ], // Fogo (bate em Gelo e Planta)
+      [ 0, 1, 0, 0, 0, 1, 0, 0, 0 ], // Planta (bate em Água e Terra)
+      [ 1, 0, 0, 1, 0, 0, 0, 0, 0 ], // Terra (bate em Gelo e Fogo)
+      [ 0, 0, 0, 0, 1, 0, 0, 1, 0 ], // Vento (bate em Planta e Dark)
+      [ 0, 0, 1, 0, 1, 0, 0, 0, 1 ], // Dark (bate em Raio, Planta e Luz)
+      [ 0, 0, 0, 0, 0, 0, 1, 1, 0 ]  // Luz (bate em Vento e Dark)
+    ];
+
+    // Official Loss Matrix
+    const lossMatrix = [
+      [ 1, 0, 0, 1, 0, 1, 0, 0, 0 ], // Gelo perde para Gelo, Fogo e Terra
+      [ 1, 1, 0, 0, 1, 0, 0, 0, 1 ], // Água perde para Gelo, Água, Planta e Luz
+      [ 1, 0, 1, 0, 0, 1, 0, 0, 0 ], // Raio perde para Gelo, Raio e Terra
+      [ 0, 1, 0, 1, 0, 1, 0, 0, 1 ], // Fogo perde para Água, Fogo, Terra e Luz
+      [ 0, 0, 0, 1, 1, 0, 0, 0, 1 ], // Planta perde para Fogo, Planta e Luz
+      [ 0, 1, 0, 0, 1, 1, 0, 1, 0 ], // Terra perde para Água, Planta, Terra e Dark
+      [ 0, 0, 1, 0, 0, 0, 1, 0, 0 ], // Vento perde para Raio e Vento
+      [ 0, 1, 0, 0, 0, 0, 1, 0, 0 ], // Dark perde para Água e Vento
+      [ 0, 0, 1, 0, 0, 0, 0, 0, 1 ]  // Luz perde para Raio e Luz
+    ];
+
+    // State
+    let squad = [1, 3, 4]; // Default team: Água, Fogo, Planta
+    let soundEnabled = true;
+    let currentAttacker = 0; // Gelo
+    let currentDefender = 1; // Água
+
+    // Web Audio Synthesizer for UI Clicks
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playClickSound() {
+      if (!soundEnabled) return;
+      try {
+        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+      } catch (e) {}
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('sound-toggle');
+      btn.innerHTML = soundEnabled ? '<i class="fa-solid fa-volume-high text-sm"></i>' : '<i class="fa-solid fa-volume-xmark text-sm text-red-400"></i>';
+      playClickSound();
+    }
+
+    // Tab Switching
+    function switchTab(tabId) {
+      playClickSound();
+      ['team', 'matrix', 'battle'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        document.getElementById(`btn-tab-${t}`).className = "px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 text-gray-400 hover:text-white";
       });
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      document.getElementById(`btn-tab-${tabId}`).className = "px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30";
 
-      resultsHtml += `<span class="badge" style="border-color:#b9c5ff">${icon(attackerElement)} ${attackerElement.name}:</span>`;
+      if (tabId === 'matrix') renderMatrix();
+      if (tabId === 'battle') renderBattlePickers();
+    }
 
-      if (advantages.length > 0) {
-        advantages.forEach(c => {
-          resultsHtml += `<span class="badge counter">${icon(c)} ${c.name}</span>`;
+    // Modal Controls
+    function openLegendModal() {
+      playClickSound();
+      document.getElementById('legend-modal').classList.remove('hidden');
+      document.getElementById('legend-modal').classList.add('grid');
+    }
+    function closeLegendModal() {
+      playClickSound();
+      document.getElementById('legend-modal').classList.add('hidden');
+      document.getElementById('legend-modal').classList.remove('grid');
+    }
+
+    function renderTeamBuilder() {
+      const container = document.getElementById('squad-slots');
+      let html = '';
+      
+      for (let i = 0; i < 6; i++) {
+        const currentEleIdx = squad[i] !== undefined ? squad[i] : -1;
+        html += `
+          <div class="flex items-center gap-3 p-3 rounded-2xl bg-aniimo-card border border-gray-800/80 transition hover:border-gray-700">
+            <span class="text-xs font-black text-gray-500 w-6">#0${i+1}</span>
+            <select onchange="updateSquadSlot(${i}, this.value)" class="w-full bg-aniimo-darkbg text-xs font-bold text-white p-2.5 rounded-xl border border-gray-800 outline-none focus:border-blue-500 transition">
+              <option value="-1">— Slot Vazio —</option>
+        `;
+        elements.forEach((e, idx) => {
+          const sel = currentEleIdx === idx ? 'selected' : '';
+          html += `<option value="${idx}" ${sel}>${e.icon} ${e.name}</option>`;
         });
+        html += `</select></div>`;
+      }
+      container.innerHTML = html;
+      updateTeamAnalytics();
+    }
+
+    function updateSquadSlot(slotIndex, val) {
+      playClickSound();
+      const numVal = parseInt(val);
+      if (numVal === -1) {
+        squad[slotIndex] = undefined;
       } else {
-        resultsHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Nenhuma vantagem direta</span>`;
+        squad[slotIndex] = numVal;
+      }
+      // Clean undefined and keep active
+      squad = squad.filter(x => x !== undefined);
+      renderTeamBuilder();
+    }
+
+    function resetTeam() {
+      playClickSound();
+      squad = [1, 3, 4];
+      renderTeamBuilder();
+    }
+
+    function updateTeamAnalytics() {
+      const activeElements = squad.filter(x => x !== undefined);
+      document.getElementById('active-count').innerText = activeElements.length;
+
+      const offensiveContainer = document.getElementById('offensive-coverage-grid');
+      const defensiveContainer = document.getElementById('defensive-weaknesses-grid');
+      const adviceContainer = document.getElementById('ai-tactical-advice');
+
+      if (activeElements.length === 0) {
+        offensiveContainer.innerHTML = `<span class="text-xs text-gray-500 italic col-span-full">Nenhum elemento no time.</span>`;
+        defensiveContainer.innerHTML = `<span class="text-xs text-gray-500 italic col-span-full">Nenhum elemento no time.</span>`;
+        adviceContainer.innerHTML = `Seu esquadrão está vazio. Adicione elementos para gerar estratégias táticas avançadas.`;
+        document.getElementById('squad-power-score').innerText = 'Incompleto';
+        return;
       }
 
-      // Calcular counters (quem é efetivo contra o elemento selecionado)
-      let counters = [];
-      interactionMatrix.forEach((row, rowIdx) => {
-        if (row[attackerIdx] === 1) {
-          counters.push(elements[rowIdx]);
-        }
+      // Calculate Offensive Coverage (Union of advantages of active elements)
+      let coveredTypes = new Set();
+      activeElements.forEach(attIdx => {
+        interactionMatrix[attIdx].forEach((val, defIdx) => {
+          if (val === 1) coveredTypes.add(defIdx);
+        });
       });
 
-      countersHtml += `<span class="badge" style="border-color:#b9c5ff">${icon(attackerElement)} ${attackerElement.name}:</span>`;
+      let offHtml = '';
+      coveredTypes.forEach(defIdx => {
+        const e = elements[defIdx];
+        offHtml += `<div class="p-3 rounded-2xl bg-aniimo-card border border-gray-800 flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-xl ${e.cls} grid place-items-center text-xs font-bold">${e.icon}</span>
+          <span class="text-xs font-bold text-white">${e.name}</span>
+        </div>`;
+      });
+      offensiveContainer.innerHTML = offHtml || `<span class="text-xs text-gray-500 italic">Nenhuma cobertura ofensiva direta.</span>`;
 
-      if (counters.length > 0) {
-        counters.forEach(c => {
-          countersHtml += `<span class="badge counter" style="background:#ffe6e6;color:#c62828;border-color:#ffcdd2">${icon(c)} ${c.name}</span>`;
+      // Calculate Defensive Weaknesses (Union of losses for active elements)
+      let weaknessMap = {};
+      activeElements.forEach(attIdx => {
+        lossMatrix[attIdx].forEach((val, lossIdx) => {
+          if (val === 1) {
+            weaknessMap[lossIdx] = (weaknessMap[lossIdx] || 0) + 1;
+          }
         });
+      });
+
+      let defHtml = '';
+      Object.keys(weaknessMap).forEach(key => {
+        const defIdx = parseInt(key);
+        const e = elements[defIdx];
+        const count = weaknessMap[defIdx];
+        defHtml += `<div class="p-3 rounded-2xl bg-aniimo-card border border-gray-800 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="w-7 h-7 rounded-xl ${e.cls} grid place-items-center text-xs font-bold">${e.icon}</span>
+            <span class="text-xs font-bold text-white">${e.name}</span>
+          </div>
+          <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30">${count} alerta(s)</span>
+        </div>`;
+      });
+      defensiveContainer.innerHTML = defHtml || `<span class="text-xs text-gray-500 italic">Nenhuma vulnerabilidade crítica detectada.</span>`;
+
+      // AI Advice generation
+      let advice = `Seu time possui <strong>${activeElements.length} elemento(s)</strong> ativos.`;
+      if (activeElements.length >= 3) {
+        advice += ` Ótima diversidade tática! Você consegue cobrir <strong>${coveredTypes.size} de 9</strong> tipos elementais ofensivamente.`;
+        document.getElementById('squad-power-score').innerText = coveredTypes.size >= 7 ? 'Elite S-Tier' : 'Equilibrado';
       } else {
-        countersHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Nenhum counter direto</span>`;
+        advice += ` Recomenda-se adicionar mais membros para expandir a cobertura contra diferentes tipos inimigos.`;
+        document.getElementById('squad-power-score').innerText = 'Em Formação';
+      }
+      adviceContainer.innerHTML = advice;
+    }
+
+    function renderMatrix() {
+      const container = document.getElementById('matrix-container');
+      let html = `<table class="w-full border-collapse text-center"><thead><tr><th class="p-2 text-xs font-bold text-gray-500">Atacante \\ Defensor</th>`;
+      
+      elements.forEach(e => {
+        html += `<th class="p-2"><div class="w-8 h-8 mx-auto rounded-xl ${e.cls} grid place-items-center text-xs font-bold" title="${e.name}">${e.icon}</div></th>`;
+      });
+      html += `</tr></thead><tbody>`;
+
+      interactionMatrix.forEach((row, attIdx) => {
+        const attEle = elements[attIdx];
+        html += `<tr><td class="p-2 text-left font-bold text-xs flex items-center gap-2"><span class="w-6 h-6 rounded-lg ${attEle.cls} grid place-items-center text-[10px]">${attEle.icon}</span> ${attEle.name}</td>`;
+        
+        row.forEach((val, defIdx) => {
+          const bg = val === 1 ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30 font-black' : 'bg-aniimo-card text-gray-600 border-gray-800';
+          html += `<td class="p-1.5"><div class="w-9 h-9 mx-auto rounded-xl border ${bg} grid place-items-center text-xs matrix-cell cursor-pointer" onclick="openBattleWith(${attIdx}, ${defIdx})" title="${attEle.name} vs ${elements[defIdx].name}: ${val}">${val}</div></td>`;
+        });
+        html += `</tr>`;
+      });
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    }
+
+    function openBattleWith(att, def) {
+      playClickSound();
+      currentAttacker = att;
+      currentDefender = def;
+      switchTab('battle');
+    }
+
+    function renderBattlePickers() {
+      // Attacker Picker
+      let attHtml = '';
+      elements.forEach((e, idx) => {
+        const active = currentAttacker === idx ? 'border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/30' : 'border-gray-800 bg-aniimo-card';
+        attHtml += `<button onclick="setAttacker(${idx})" class="p-3 rounded-2xl border ${active} flex flex-col items-center gap-1.5 transition hover:border-blue-400">
+          <span class="w-8 h-8 rounded-xl ${e.cls} grid place-items-center text-xs font-bold">${e.icon}</span>
+          <span class="text-[11px] font-bold text-gray-300">${e.name}</span>
+        </button>`;
+      });
+      document.getElementById('battle-attacker-picker').innerHTML = attHtml;
+
+      // Defender Picker
+      let defHtml = '';
+      elements.forEach((e, idx) => {
+        const active = currentDefender === idx ? 'border-rose-500 bg-rose-500/20 shadow-lg shadow-rose-500/30' : 'border-gray-800 bg-aniimo-card';
+        defHtml += `<button onclick="setDefender(${idx})" class="p-3 rounded-2xl border ${active} flex flex-col items-center gap-1.5 transition hover:border-rose-400">
+          <span class="w-8 h-8 rounded-xl ${e.cls} grid place-items-center text-xs font-bold">${e.icon}</span>
+          <span class="text-[11px] font-bold text-gray-300">${e.name}</span>
+        </button>`;
+      });
+      document.getElementById('battle-defender-picker').innerHTML = defHtml;
+
+      updateBattleResult();
+    }
+
+    function setAttacker(idx) {
+      playClickSound();
+      currentAttacker = idx;
+      renderBattlePickers();
+    }
+
+    function setDefender(idx) {
+      playClickSound();
+      currentDefender = idx;
+      renderBattlePickers();
+    }
+
+    function updateBattleResult() {
+      const att = elements[currentAttacker];
+      const def = elements[currentDefender];
+
+      document.getElementById('battle-att-icon').className = `w-10 h-10 rounded-xl grid place-items-center text-lg font-bold ${att.cls}`;
+      document.getElementById('battle-att-icon').innerText = att.icon;
+      document.getElementById('battle-att-name').innerText = att.name;
+
+      document.getElementById('battle-def-icon').className = `w-10 h-10 rounded-xl grid place-items-center text-lg font-bold ${def.cls}`;
+      document.getElementById('battle-def-icon').innerText = def.icon;
+      document.getElementById('battle-def-name').innerText = def.name;
+
+      const isAdvantage = interactionMatrix[currentAttacker][currentDefender] === 1;
+      const titleEl = document.getElementById('battle-result-title');
+      const descEl = document.getElementById('battle-result-desc');
+      const multEl = document.getElementById('battle-mult-val');
+
+      if (isAdvantage) {
+        titleEl.innerText = "Super Efetivo! (Vantagem)";
+        titleEl.className = "text-3xl font-black text-emerald-400";
+        descEl.innerText = `O elemento ${att.name} possui vantagem direta sobre ${def.name}, causando dano amplificado.`;
+        multEl.innerText = "2.0x (Crítico)";
+        multEl.className = "text-emerald-400 font-mono text-sm";
+      } else if (currentAttacker === currentDefender) {
+        titleEl.innerText = "Dano Neutro (Espelho)";
+        titleEl.className = "text-3xl font-black text-yellow-400";
+        descEl.innerText = `Confronto entre o mesmo elemento (${att.name}). Dano padrão sem modificadores.`;
+        multEl.innerText = "1.0x (Padrão)";
+        multEl.className = "text-yellow-400 font-mono text-sm";
+      } else {
+        titleEl.innerText = "Dano Neutro / Normal";
+        titleEl.className = "text-3xl font-black text-gray-300";
+        descEl.innerText = `O elemento ${att.name} não possui vantagem direta sobre ${def.name} na matriz oficial.`;
+        multEl.innerText = "1.0x (Normal)";
+        multEl.className = "text-gray-300 font-mono text-sm";
       }
     }
 
-    resultsHtml += `</div></div>`;
-    countersHtml += `</div></div>`;
-  });
-
-  resultsContainer.innerHTML = resultsHtml;
-  countersContainer.innerHTML = countersHtml;
-}
-
-countSelect.addEventListener('change', initUI);
-initUI();
-</script>
+    // Initialize on load
+    window.onload = function() {
+      renderTeamBuilder();
+    };
+  </script>
 </body>
 </html>
