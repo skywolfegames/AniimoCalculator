@@ -21,7 +21,7 @@
   .config-bar label{font-size:13px;font-weight:800;color:var(--ink)}
   .config-bar select{width:80px;padding:8px;border-radius:8px;border:1px solid #dfe1ed;font-weight:700;background:#fff}
 
-  .dual-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+  .dual-layout{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start}
   
   .frame-box{background:#fff;border:2px solid var(--ink);border-radius:18px;padding:20px;box-shadow:0 6px 20px rgba(0,0,0,0.04)}
   .frame-box h2{font-size:15px;margin:0 0 16px;font-weight:800;border-bottom:2px solid var(--line);padding-bottom:8px}
@@ -52,6 +52,7 @@
 
   .foot{font-size:11px;color:#9298af;margin-top:20px;line-height:1.5;text-align:center}
   @media(max-width:768px){.dual-layout{grid-template-columns:1fr}}
+  @media(min-width:769px) and (max-width:1024px){.dual-layout{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -83,6 +84,11 @@
       <div class="frame-box">
         <h2>Se quero atacar</h2>
         <div id="counters-container"></div>
+      </div>
+
+      <div class="frame-box">
+        <h2>Perde para</h2>
+        <div id="losses-container"></div>
       </div>
     </div>
 
@@ -122,6 +128,20 @@ const interactionMatrix = [
 const countSelect = document.getElementById('opponent-count');
 const selectorsContainer = document.getElementById('selectors-container');
 const countersContainer = document.getElementById('counters-container');
+const lossesContainer = document.getElementById('losses-container');
+
+const lossMatrix = [
+  // Gelo, Água, Raio, Fogo, Planta, Terra, Vento, Dark, Luz
+  [ 1,    0,    0,    1,    0,     1,     0,     0,     0 ], // Gelo perde para Gelo, Fogo e Terra
+  [ 1,    1,    0,    0,    1,     0,     0,     0,     1 ], // Água perde para Gelo, Água, Planta e Luz
+  [ 1,    0,    1,    0,    0,     1,     0,     0,     0 ], // Raio perde para Gelo, Raio e Terra
+  [ 0,    1,    0,    1,    0,     1,     0,     0,     1 ], // Fogo perde para Água, Fogo, Terra e Luz
+  [ 0,    0,    0,    1,    1,     0,     0,     0,     1 ], // Planta perde para Fogo, Planta e Luz
+  [ 0,    1,    0,    0,    1,     1,     0,     1,     0 ], // Terra perde para Água, Planta, Terra e Dark
+  [ 1,    0,    0,    0,    0,     0,     0,     0,     1 ], // Vento perde para Luz e Gelo
+  [ 1,    1,    0,    0,    0,     0,     0,     0,     0 ], // Dark perde para Água e Gelo
+  [ 0,    0,    1,    0,    0,     0,     0,     0,     1 ]  // Luz perde para Raio e Luz
+];
 
 const icon = e => `<span class="element-icon ${e.cls}">${e.icon}</span>`;
 
@@ -154,6 +174,7 @@ function initUI() {
 function updateResults() {
   const selects = document.querySelectorAll('.team-select');
   let countersHtml = '';
+  let lossesHtml = '';
 
   selects.forEach((sel) => {
     const val = sel.value;
@@ -164,8 +185,15 @@ function updateResults() {
         <div class="result-content">
     `;
 
+    lossesHtml += `
+      <div class="result-slot">
+        <div class="cross-mark">↓</div>
+        <div class="result-content">
+    `;
+
     if (val === 'none') {
       countersHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Slot vazio</span>`;
+      lossesHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Slot vazio</span>`;
     } else {
       const attackerIdx = parseInt(val);
       const attackerElement = elements[attackerIdx];
@@ -183,12 +211,28 @@ function updateResults() {
       } else {
         countersHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Nenhuma vantagem direta</span>`;
       }
+
+      lossesHtml += `<span class="badge" style="border-color:#b9c5ff">${icon(attackerElement)} ${attackerElement.name}:</span>`;
+
+      const losses = lossMatrix[attackerIdx]
+        .map((value, elementIdx) => value === 1 ? elements[elementIdx] : null)
+        .filter(Boolean);
+
+      if (losses.length > 0) {
+        losses.forEach(element => {
+          lossesHtml += `<span class="badge counter">${icon(element)} ${element.name}</span>`;
+        });
+      } else {
+        lossesHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Nenhuma perda definida</span>`;
+      }
     }
 
     countersHtml += `</div></div>`;
+    lossesHtml += `</div></div>`;
   });
 
   countersContainer.innerHTML = countersHtml;
+  lossesContainer.innerHTML = lossesHtml;
 }
 
 countSelect.addEventListener('change', initUI);
