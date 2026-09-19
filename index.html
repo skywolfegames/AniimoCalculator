@@ -114,12 +114,12 @@ const elements = [
 // Linha = Atacante, Coluna = Defensor. 1 = Atacante tem vantagem.
 const interactionMatrix = [
   // Gelo, Água, Raio, Fogo, Planta, Terra, Vento, Dark, Luz
-  [ 0,    1,    1,    0,    0,     0,     0,     0,     0 ], // Gelo (bate em Água e Raio)
+  [ 0,    1,    0,    0,    0,     0,     0,     0,     1 ], // Gelo (bate em Água e Luz)
   [ 0,    0,    0,    1,    0,     1,     0,     0,     0 ], // Água (bate em Fogo e Terra)
   [ 0,    1,    0,    0,    0,     0,     1,     0,     0 ], // Raio (bate em Água e Vento)
   [ 1,    0,    0,    0,    1,     0,     0,     0,     0 ], // Fogo (bate em Gelo e Planta)
   [ 0,    1,    0,    0,    0,     1,     0,     0,     0 ], // Planta (bate em Água e Terra)
-  [ 0,    0,    0,    1,    0,     0,     1,     0,     0 ], // Terra (bate em Fogo e Vento)
+  [ 1,    0,    0,    1,    0,     0,     0,     0,     0 ], // Terra (bate em Gelo e Fogo)
   [ 0,    0,    0,    0,    1,     0,     0,     1,     0 ], // Vento (bate em Planta e Dark)
   [ 0,    0,    1,    0,    1,     0,     0,     0,     1 ], // Dark (bate em Raio, Planta e Luz)
   [ 0,    0,    0,    0,    0,     0,     1,     1,     0 ]  // Luz (bate em Vento e Dark)
