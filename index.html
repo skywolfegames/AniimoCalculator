@@ -21,7 +21,7 @@
   .config-bar label{font-size:13px;font-weight:800;color:var(--ink)}
   .config-bar select{width:80px;padding:8px;border-radius:8px;border:1px solid #dfe1ed;font-weight:700;background:#fff}
 
-  .dual-layout{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start}
+  .dual-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
   
   .frame-box{background:#fff;border:2px solid var(--ink);border-radius:18px;padding:20px;box-shadow:0 6px 20px rgba(0,0,0,0.04)}
   .frame-box h2{font-size:15px;margin:0 0 16px;font-weight:800;border-bottom:2px solid var(--line);padding-bottom:8px}
@@ -52,7 +52,6 @@
 
   .foot{font-size:11px;color:#9298af;margin-top:20px;line-height:1.5;text-align:center}
   @media(max-width:768px){.dual-layout{grid-template-columns:1fr}}
-  @media(min-width:769px) and (max-width:1024px){.dual-layout{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -79,11 +78,6 @@
       <div class="frame-box">
         <h2>Selecione os Elementos</h2>
         <div id="selectors-container"></div>
-      </div>
-
-      <div class="frame-box">
-        <h2>Se quero defender</h2>
-        <div id="results-container"></div>
       </div>
 
       <div class="frame-box">
@@ -127,7 +121,6 @@ const interactionMatrix = [
 
 const countSelect = document.getElementById('opponent-count');
 const selectorsContainer = document.getElementById('selectors-container');
-const resultsContainer = document.getElementById('results-container');
 const countersContainer = document.getElementById('counters-container');
 
 const icon = e => `<span class="element-icon ${e.cls}">${e.icon}</span>`;
@@ -160,20 +153,11 @@ function initUI() {
 
 function updateResults() {
   const selects = document.querySelectorAll('.team-select');
-  let resultsHtml = '';
   let countersHtml = '';
 
   selects.forEach((sel) => {
     const val = sel.value;
-    
-    // Frame de vantagens
-    resultsHtml += `
-      <div class="result-slot">
-        <div class="cross-mark">→</div>
-        <div class="result-content">
-    `;
 
-    // Frame de counters
     countersHtml += `
       <div class="result-slot">
         <div class="cross-mark">⚠️</div>
@@ -181,55 +165,29 @@ function updateResults() {
     `;
 
     if (val === 'none') {
-      resultsHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Slot vazio</span>`;
       countersHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Slot vazio</span>`;
     } else {
       const attackerIdx = parseInt(val);
       const attackerElement = elements[attackerIdx];
 
-      // Calcular vantagens do elemento selecionado
-      let advantages = [];
-      const attackerRow = interactionMatrix[attackerIdx];
-      attackerRow.forEach((value, defenderIdx) => {
-        if (value === 1) {
-          advantages.push(elements[defenderIdx]);
-        }
-      });
+      countersHtml += `<span class="badge" style="border-color:#b9c5ff">${icon(attackerElement)} ${attackerElement.name}:</span>`;
 
-      resultsHtml += `<span class="badge" style="border-color:#b9c5ff">${icon(attackerElement)} ${attackerElement.name}:</span>`;
+      const advantages = interactionMatrix[attackerIdx]
+        .map((value, defenderIdx) => value === 1 ? elements[defenderIdx] : null)
+        .filter(Boolean);
 
       if (advantages.length > 0) {
         advantages.forEach(c => {
-          resultsHtml += `<span class="badge counter">${icon(c)} ${c.name}</span>`;
-        });
-      } else {
-        resultsHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Nenhuma vantagem direta</span>`;
-      }
-
-      // Calcular counters (quem é efetivo contra o elemento selecionado)
-      let counters = [];
-      interactionMatrix.forEach((row, rowIdx) => {
-        if (row[attackerIdx] === 1) {
-          counters.push(elements[rowIdx]);
-        }
-      });
-
-      countersHtml += `<span class="badge" style="border-color:#b9c5ff">${icon(attackerElement)} ${attackerElement.name}:</span>`;
-
-      if (counters.length > 0) {
-        counters.forEach(c => {
           countersHtml += `<span class="badge counter" style="background:#ffe6e6;color:#c62828;border-color:#ffcdd2">${icon(c)} ${c.name}</span>`;
         });
       } else {
-        countersHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Nenhum counter direto</span>`;
+        countersHtml += `<span style="color:var(--muted);font-weight:normal;font-size:12px;">Nenhuma vantagem direta</span>`;
       }
     }
 
-    resultsHtml += `</div></div>`;
     countersHtml += `</div></div>`;
   });
 
-  resultsContainer.innerHTML = resultsHtml;
   countersContainer.innerHTML = countersHtml;
 }
 
