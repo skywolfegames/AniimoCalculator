@@ -153,7 +153,19 @@
                 <i class="fa-solid fa-rotate-right"></i> Limpar
               </button>
             </div>
-            <p class="text-xs text-gray-400 mb-6">Monte seu time com até 6 elementos para calcular automaticamente vantagens, pontos cegos defensivos e sinergia.</p>
+            
+            <!-- Squad Size Selector -->
+            <div class="mb-6">
+              <label class="text-xs font-bold text-gray-400 mb-2 block">Tamanho do Esquadrão:</label>
+              <select id="squad-size" onchange="updateSquadSize(this.value)" class="w-full bg-aniimo-darkbg text-xs font-bold text-white p-2.5 rounded-xl border border-gray-800 outline-none focus:border-blue-500 transition">
+                <option value="1">1 Elemento</option>
+                <option value="2">2 Elementos</option>
+                <option value="3">3 Elementos</option>
+                <option value="4">4 Elementos</option>
+                <option value="5">5 Elementos</option>
+                <option value="6" selected>6 Elementos</option>
+              </select>
+            </div>
 
             <!-- Squad Slots Container -->
             <div id="squad-slots" class="space-y-3 mb-6">
@@ -161,10 +173,7 @@
             </div>
           </div>
 
-          <div class="pt-4 border-t border-gray-800/80 text-xs text-gray-400 flex items-center justify-between">
-            <span>Elementos Ativos: <strong id="active-count" class="text-white">0</strong>/6</span>
-            <span class="text-blue-400 font-bold" id="squad-power-score">Sinergia: Ótima</span>
-          </div>
+
         </div>
 
         <!-- Right/Center Column: Tactical Analytics & Coverage -->
@@ -360,6 +369,7 @@
 
     // State
     let squad = [1, 3, 4]; // Default team: Água, Fogo, Planta
+    let squadSize = 6; // Default squad size
     let soundEnabled = true;
     let currentAttacker = 0; // Gelo
     let currentDefender = 1; // Água
@@ -417,12 +427,25 @@
       document.getElementById('legend-modal').classList.remove('grid');
     }
 
+    function updateSquadSize(size) {
+      playClickSound();
+      squadSize = parseInt(size);
+      // Adjust squad array size
+      while (squad.length > squadSize) {
+        squad.pop();
+      }
+      while (squad.length < squadSize) {
+        squad.push(-1);
+      }
+      renderTeamBuilder();
+    }
+
     function renderTeamBuilder() {
       const container = document.getElementById('squad-slots');
       let html = '';
       
-      for (let i = 0; i < 6; i++) {
-        const currentEleIdx = squad[i] !== undefined ? squad[i] : -1;
+      for (let i = 0; i < squadSize; i++) {
+        const currentEleIdx = squad[i] !== undefined && squad[i] !== -1 ? squad[i] : -1;
         html += `
           <div class="flex items-center gap-3 p-3 rounded-2xl bg-aniimo-card border border-gray-800/80 transition hover:border-gray-700">
             <span class="text-xs font-black text-gray-500 w-6">#0${i+1}</span>
@@ -442,13 +465,7 @@
     function updateSquadSlot(slotIndex, val) {
       playClickSound();
       const numVal = parseInt(val);
-      if (numVal === -1) {
-        squad[slotIndex] = undefined;
-      } else {
-        squad[slotIndex] = numVal;
-      }
-      // Clean undefined and keep active
-      squad = squad.filter(x => x !== undefined);
+      squad[slotIndex] = numVal;
       renderTeamBuilder();
     }
 
@@ -459,8 +476,7 @@
     }
 
     function updateTeamAnalytics() {
-      const activeElements = squad.filter(x => x !== undefined);
-      document.getElementById('active-count').innerText = activeElements.length;
+      const activeElements = squad.filter(x => x !== undefined && x !== -1);
 
       const offensiveContainer = document.getElementById('offensive-coverage-grid');
       const defensiveContainer = document.getElementById('defensive-weaknesses-grid');
@@ -470,7 +486,6 @@
         offensiveContainer.innerHTML = `<span class="text-xs text-gray-500 italic col-span-full">Nenhum elemento no time.</span>`;
         defensiveContainer.innerHTML = `<span class="text-xs text-gray-500 italic col-span-full">Nenhum elemento no time.</span>`;
         adviceContainer.innerHTML = `Seu esquadrão está vazio. Adicione elementos para gerar estratégias táticas avançadas.`;
-        document.getElementById('squad-power-score').innerText = 'Incompleto';
         return;
       }
 
@@ -521,10 +536,8 @@
       let advice = `Seu time possui <strong>${activeElements.length} elemento(s)</strong> ativos.`;
       if (activeElements.length >= 3) {
         advice += ` Ótima diversidade tática! Você consegue cobrir <strong>${coveredTypes.size} de 9</strong> tipos elementais ofensivamente.`;
-        document.getElementById('squad-power-score').innerText = coveredTypes.size >= 7 ? 'Elite S-Tier' : 'Equilibrado';
       } else {
         advice += ` Recomenda-se adicionar mais membros para expandir a cobertura contra diferentes tipos inimigos.`;
-        document.getElementById('squad-power-score').innerText = 'Em Formação';
       }
       adviceContainer.innerHTML = advice;
     }
@@ -637,6 +650,7 @@
 
     // Initialize on load
     window.onload = function() {
+      document.getElementById('squad-size').value = squadSize;
       renderTeamBuilder();
     };
   </script>
